@@ -3,12 +3,12 @@ use std::io::Write;
 
 fn main() {
     let hard_modifiers = [
-        "Un jeu dans le jeu", 
         "Mon..Ami? - Ton allié est aussi ton ennemie", 
-        "Maniaque - Fou/Horreur/Hallucinations", 
-        "Je veux ma part - système de quête", 
+        "Check mon char - Contrôler un véhicule, autre que le personnage principale",
         "Monte le son - Basé sur de la Musique", 
-        "Check mon char - Contrôler un véhicule, autre que le personnage principale"
+        "Je veux ma part - système de quête", 
+        "Maniaque - Fou/Horreur/Hallucinations", 
+        "Un jeu dans le jeu", 
     ];
     let easy_modifiers = [
         "Chacun pour soi",
@@ -36,14 +36,10 @@ fn main() {
         "Eirb GANG",
         "Résoskour",
         "LambdaPeanutButter",
-        "LÉHCQTLPADNLPPQFLJERECA",
-        "Les maitres du jeux",
         "Les Gros Nazes",
         "Monopoly McDo 3/10-6/11",
         "Sleepers",
-        "Choccy Milk Studio",
         "S24",
-        "Totema Studio",
         "BadTeam",
         "Les CatJams",
         "TFT Addict",
@@ -52,27 +48,44 @@ fn main() {
         "Playmakers",
         "OscaroSolo",
         "Les Aventuriers d'Astram",
+        "NoName",
         "Chicoutifli",
         "Sqaxva",
         "Arisia",
-        "Cinq hop"
+        "Cinq hop",
+        "Les Trois Mousquetaires**",
+        "LÉHCQTLPADNLPPQFLJERECA",
+        "Les maitres du jeux",
+        "Choccy Milk Studio",
+        "Totema Studio",
+        "Pain à l'ail",
     ];
+    let output_folder = "output/";
+
+    let files = ["rolls_wonderjam.csv", "re-rolls_wonderjam.csv"];
     println!("Don't forget to remove old file");
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .append(true)
-        .open("rolls_wonderjam.csv").expect("Can't open file");
-    let mut  rng = rand::thread_rng();
 
     println!("--------- Starting Generation ----------");
-    for team in teams.iter() {
-        let rand_easy_mods = easy_modifiers.iter().choose_multiple(&mut rng, 2);
-        let rand_hard_mod = hard_modifiers.iter().choose(&mut rng).expect("Yolo");
+    for file in files.iter() {
+        let file_path = output_folder.to_owned()+file.to_owned();
+        std::fs::remove_file(file_path.clone()).unwrap_or(());
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .append(true)
+            .open(file_path).expect("Can't open file");
+        let mut  rng = rand::thread_rng();
         writeln!(file,
-            "{};{};{};{}",team,rand_easy_mods[0],rand_easy_mods[1],rand_hard_mod)
+            "{};{};{};{}","Équipe","Style 1", "Style 2", "Style 3")
             .expect("Can't write file");
+        for team in teams.iter() {
+            let rand_easy_mods = easy_modifiers.iter().choose_multiple(&mut rng, 2);
+            let rand_hard_mod = hard_modifiers.iter().choose(&mut rng).expect("Yolo");
+            writeln!(file,
+                "{};{};{};{}",team,rand_easy_mods[0],rand_easy_mods[1],rand_hard_mod)
+                .expect("Can't write file");
+        }
     }
-    println!("Rolls finished, open rolls_wonderjam.csv with Excel and the separator is ';'");
-
+    
+    println!("Rolls finished, open the .csv files with Excel and the separator is ';'");
 }
