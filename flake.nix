@@ -8,6 +8,7 @@
      buildInputs = [
        cargo
        gcc
+       rustc
       
        # zsh
      ];
