@@ -1,6 +1,21 @@
 use rand::seq::IteratorRandom;
 use std::io::Write;
 
+struct Roll{
+    team:String,
+    rolls:Vec<String>,
+}
+
+fn containsXSameRolls(originalRolls:&Roll,mods:Vec<String>,numberOf:usize)->bool{
+    let mut count = 0;
+    for roll in originalRolls.rolls.iter(){
+        if mods.contains(roll){
+            count += 1;
+        }
+    }
+    count >= numberOf
+}
+
 fn main() {
     let hard_modifiers = [
         "Mon..Ami? - Ton allié est aussi ton ennemie", 
@@ -64,6 +79,9 @@ fn main() {
     let files = ["rolls_wonderjam.csv", "re-rolls_wonderjam.csv"];
     println!("Don't forget to remove old file");
 
+    let mut teams_first_rolls:Vec<Roll> = vec![];
+    let mut first_run = true;
+
     println!("--------- Starting Generation ----------");
     for file in files.iter() {
         let file_path = output_folder.to_owned()+file.to_owned();
@@ -77,13 +95,25 @@ fn main() {
         writeln!(file,
             "{};{};{};{}","Équipe","Style 1", "Style 2", "Style 3")
             .expect("Can't write file");
-        for team in teams.iter() {
-            let rand_easy_mods = easy_modifiers.iter().choose_multiple(&mut rng, 2);
-            let rand_hard_mod = hard_modifiers.iter().choose(&mut rng).expect("Yolo");
+        for (i,team) in teams.iter().enumerate() {
+            
+            let mut rand_easy_mods = easy_modifiers.iter().choose_multiple(&mut rng, 2);
+            let mut rand_hard_mod = hard_modifiers.iter().choose(&mut rng).expect("Yolo");
+
+            if first_run{
+                let roll = Roll{team:team.to_string(),rolls:vec!(rand_easy_mods[0].to_string(),rand_easy_mods[1].to_string(),rand_hard_mod.to_string())};
+                teams_first_rolls.push(roll);
+            }else {
+                while containsXSameRolls(&teams_first_rolls[i],vec!(rand_easy_mods[0].to_string(),rand_easy_mods[1].to_string(),rand_hard_mod.to_string()),2){
+                    rand_easy_mods = easy_modifiers.iter().choose_multiple(&mut rng, 2);
+                    rand_hard_mod = hard_modifiers.iter().choose(&mut rng).expect("Yolo");
+                }
+            }
             writeln!(file,
                 "{};{};{};{}",team,rand_easy_mods[0],rand_easy_mods[1],rand_hard_mod)
                 .expect("Can't write file");
         }
+        first_run = false;
     }
     
     println!("Rolls finished, open the .csv files with Excel and the separator is ';'");
