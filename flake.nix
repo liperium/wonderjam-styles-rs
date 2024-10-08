@@ -1,3 +1,4 @@
+#https://mediocregopher.com/posts/x-compiling-rust-with-nix
 {
   inputs = {
     fenix.url = "github:nix-community/fenix";
